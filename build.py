@@ -1,4 +1,4 @@
-"""Build script — inlines src/ files into a single dashboard-day1.html."""
+"""Build script — inlines src/ files into a single dashboard.html."""
 
 import re
 import sys
@@ -7,7 +7,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 SRC = ROOT / "src"
 TEMPLATE = SRC / "template.html"
-OUTPUT = ROOT / "dashboard-day1.html"
+OUTPUT = ROOT / "dashboard.html"
 
 INLINE_RE = re.compile(r"/\* BUILD:INLINE (.+?) \*/")
 

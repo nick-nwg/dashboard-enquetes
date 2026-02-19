@@ -26,7 +26,12 @@ function buildTable(columns, dataRows, headers) {
   container.classList.remove('open');
   container.style.maxHeight = '0';
   const btn = document.getElementById('tableToggle');
-  btn.innerHTML = '<span class="arrow">&#9654;</span> Show all employee responses';
+  btn.classList.remove('open');
+  btn.innerHTML = '<i data-lucide="chevron-right" class="arrow"></i><span class="toggle-text">Show all employee responses</span>';
+
+  // Reset search
+  const searchInput = document.getElementById('tableSearchInput');
+  if (searchInput) searchInput.value = '';
 }
 
 function sortTable(colIdx) {
@@ -104,11 +109,12 @@ function updateSortIndicators() {
     th.classList.remove('sort-asc', 'sort-desc');
     if (i === tableState.sortCol) {
       th.classList.add(tableState.sortDir === 'asc' ? 'sort-asc' : 'sort-desc');
-      indicator.textContent = tableState.sortDir === 'asc' ? '▲' : '▼';
+      indicator.innerHTML = `<i data-lucide="${tableState.sortDir === 'asc' ? 'chevron-up' : 'chevron-down'}"></i>`;
     } else {
-      indicator.textContent = '';
+      indicator.innerHTML = '';
     }
   });
+  lucide.createIcons();
 }
 
 function toggleTable() {
@@ -130,5 +136,14 @@ function toggleTable() {
     });
   }
 
-  btn.innerHTML = `<span class="arrow">${!isOpen ? '&#9662;' : '&#9654;'}</span> ${!isOpen ? 'Hide' : 'Show all'} employee responses`;
+  btn.classList.toggle('open', !isOpen);
+  btn.querySelector('.toggle-text').textContent = !isOpen ? 'Hide employee responses' : 'Show all employee responses';
+}
+
+function filterTable(query) {
+  const rows = document.querySelectorAll('#tableBody tr');
+  const q = query.toLowerCase();
+  rows.forEach(tr => {
+    tr.style.display = tr.textContent.toLowerCase().includes(q) ? '' : 'none';
+  });
 }

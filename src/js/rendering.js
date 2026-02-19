@@ -8,9 +8,12 @@ Chart.defaults.font.size = 12;
 Chart.defaults.color = '#7A706A';
 
 function renderDashboard(sheetName, columns, dataRows, headers) {
+  currentRenderState = { sheetName, columns, dataRows, headers };
+
   // Title
-  document.getElementById('dashTitle').textContent = sheetName + ' — Onboarding Survey';
-  document.getElementById('dashSubtitle').textContent = (currentFileName ? currentFileName + ' · ' : '') + dataRows.length + ' responses';
+  const titlePrefix = currentWeek ? 'Week ' + currentWeek + ' — ' : '';
+  document.getElementById('dashTitle').textContent = titlePrefix + sheetName;
+  document.getElementById('dashSubtitle').textContent = (currentFileName ? currentFileName + ' · ' : '') + dataRows.length + ' respondenten';
   document.getElementById('respondentCount').textContent = dataRows.length;
 
   const ratingCols = columns.filter(c => c.type === 'rating');
@@ -21,13 +24,39 @@ function renderDashboard(sheetName, columns, dataRows, headers) {
   // KPIs
   buildKPIs(ratingCols, ynCols);
 
+  // Sort columns if needed
+  let sortedRating = [...ratingCols];
+  let sortedYn = [...ynCols];
+  if (cardSortMode === 'worst') {
+    sortedRating.sort((a, b) => {
+      const avgA = a.values.map(Number).filter(v => !isNaN(v) && v >= 1 && v <= 5);
+      const avgB = b.values.map(Number).filter(v => !isNaN(v) && v >= 1 && v <= 5);
+      const mA = avgA.length ? avgA.reduce((s,v) => s+v, 0) / avgA.length : 5;
+      const mB = avgB.length ? avgB.reduce((s,v) => s+v, 0) / avgB.length : 5;
+      return mA - mB;
+    });
+    sortedYn.sort((a, b) => {
+      const pctA = (() => { const y = a.values.filter(v => /^yes$/i.test(String(v).trim())).length; const t = a.values.filter(v => /^(yes|no)$/i.test(String(v).trim())).length; return t ? y/t*100 : 100; })();
+      const pctB = (() => { const y = b.values.filter(v => /^yes$/i.test(String(v).trim())).length; const t = b.values.filter(v => /^(yes|no)$/i.test(String(v).trim())).length; return t ? y/t*100 : 100; })();
+      return pctA - pctB;
+    });
+  }
+
   // Rating cards
   const ratingGrid = document.getElementById('ratingGrid');
   const ratingSection = document.getElementById('ratingSection');
   ratingGrid.innerHTML = '';
-  if (ratingCols.length > 0) {
+  if (sortedRating.length > 0) {
     ratingSection.style.display = 'block';
-    ratingCols.forEach((col, i) => buildRatingCard(col, i, ratingGrid, dataRows, nameIdx));
+    // Pre-calculate global max for consistent x-axes across all rating charts
+    let ratingMax = 0;
+    sortedRating.forEach(col => {
+      const nums = col.values.map(Number).filter(v => !isNaN(v) && v >= 1 && v <= 5);
+      const dist = [0,0,0,0,0];
+      nums.forEach(v => dist[v-1]++);
+      ratingMax = Math.max(ratingMax, ...dist);
+    });
+    sortedRating.forEach((col, i) => buildRatingCard(col, i, ratingGrid, dataRows, nameIdx, ratingMax, sheetName));
   } else {
     ratingSection.style.display = 'none';
   }
@@ -36,15 +65,21 @@ function renderDashboard(sheetName, columns, dataRows, headers) {
   const ynGrid = document.getElementById('ynGrid');
   const ynSection = document.getElementById('ynSection');
   ynGrid.innerHTML = '';
-  if (ynCols.length > 0) {
+  if (sortedYn.length > 0) {
     ynSection.style.display = 'block';
-    ynCols.forEach((col, i) => buildYnCard(col, i, ynGrid, dataRows, nameIdx));
+    sortedYn.forEach((col, i) => buildYnCard(col, i, ynGrid, dataRows, nameIdx, sheetName));
   } else {
     ynSection.style.display = 'none';
   }
 
+  // Update sort toggle state
+  updateSortToggles();
+
   // Table
   buildTable(columns, dataRows, headers);
+
+  // Render Lucide icons in dynamically created elements
+  lucide.createIcons();
 }
 
 function buildKPIs(ratingCols, ynCols) {
@@ -80,7 +115,7 @@ function buildKPIs(ratingCols, ynCols) {
   const kpis = [
     { value: overallAvg, label: 'Overall Average', cls: overallAvg !== '—' ? statusClass(overallAvg) : '' },
     { value: ynPct !== '—' ? ynPct + '%' : '—', label: 'Process Clarity', cls: ynPct !== '—' ? pctStatus(ynPct) : '' },
-    { value: problems, label: 'Attention Areas', cls: problems > 0 ? 'warning' : 'good' },
+    { value: problems > 0 ? problems : '&#10003;', label: problems > 0 ? 'Attention Areas' : 'All Clear', cls: problems > 0 ? 'warning' : 'good', clickable: problems > 0 },
     { value: best, label: 'Best Score', cls: best !== '—' ? 'good' : '' },
     { value: worst, label: 'Lowest Score', cls: worst !== '—' ? statusClass(worst) : '' }
   ];
@@ -88,12 +123,24 @@ function buildKPIs(ratingCols, ynCols) {
   kpis.forEach((k, i) => {
     const el = document.createElement('div');
     el.className = `kpi-item ${k.cls}`;
-    el.style.opacity = '0';
-    el.style.transform = 'translateY(16px)';
-    el.style.animation = `fadeUp 0.5s ease forwards ${i * 0.08}s`;
+    el.style.animation = `fadeUp 0.5s ease ${i * 0.08}s both`;
     el.innerHTML = `<div class="kpi-value">${k.value}</div><div class="kpi-label">${k.label}</div>`;
+    if (k.clickable) {
+      el.style.cursor = 'pointer';
+      el.title = 'Click to see attention areas';
+      el.onclick = scrollToFlagged;
+    }
     strip.appendChild(el);
   });
+}
+
+function buildTrendHtml(trend) {
+  if (!trend) return '';
+  const iconName = trend.direction === 'up' ? 'trending-up' : trend.direction === 'down' ? 'trending-down' : 'minus';
+  return `<div class="card-trend trend-${trend.direction}">
+    <i data-lucide="${iconName}"></i>
+    <span>${trend.diff} from ${esc(trend.prevSheet)}</span>
+  </div>`;
 }
 
 function buildCommentSection(comments, cardId) {
@@ -102,7 +149,7 @@ function buildCommentSection(comments, cardId) {
   const s = count !== 1 ? 's' : '';
   return `
     <button class="card-comments-toggle" onclick="toggleComments('${cardId}', this)">
-      <span class="arrow">&#9654;</span>
+      <i data-lucide="chevron-right" class="arrow"></i>
       <span class="toggle-label">${count} comment${s} / reason${s}</span>
     </button>
     <div class="card-comments" id="${cardId}">
@@ -119,7 +166,7 @@ function buildCommentSection(comments, cardId) {
     </div>`;
 }
 
-function buildRatingCard(col, index, grid, dataRows, nameIdx) {
+function buildRatingCard(col, index, grid, dataRows, nameIdx, ratingMax, sheetName) {
   const nums = col.values.map(Number).filter(v => !isNaN(v) && v >= 1 && v <= 5);
   if (!nums.length) return;
 
@@ -131,11 +178,13 @@ function buildRatingCard(col, index, grid, dataRows, nameIdx) {
 
   // Collect comments from linked reason/action columns
   const comments = collectComments(col, dataRows, nameIdx, 'rating');
-  const commentCount = comments.length;
   const cardId = `rating-comments-${index}`;
 
+  // Trend
+  const trend = getTrend(col.header, sheetName, 'rating');
+
   const card = document.createElement('div');
-  card.className = 'card';
+  card.className = 'card' + (warn ? ' card-flagged' : '');
   card.style.animationDelay = (index * 0.06) + 's';
   card.innerHTML = `
     <div class="card-header">
@@ -146,6 +195,7 @@ function buildRatingCard(col, index, grid, dataRows, nameIdx) {
       </div>
     </div>
     <div class="card-chart"><canvas></canvas></div>
+    ${buildTrendHtml(trend)}
     ${buildCommentSection(comments, cardId)}
   `;
   grid.appendChild(card);
@@ -154,7 +204,7 @@ function buildRatingCard(col, index, grid, dataRows, nameIdx) {
   const chart = new Chart(ctx, {
     type: 'bar',
     data: {
-      labels: ['1 — Very poor','2 — Poor','3 — Average','4 — Good','5 — Excellent'],
+      labels: ['1','2','3','4','5'],
       datasets: [{ data: dist, backgroundColor: barColors, borderRadius: 6, borderSkipped: false, barThickness: 22 }]
     },
     options: {
@@ -165,7 +215,7 @@ function buildRatingCard(col, index, grid, dataRows, nameIdx) {
         }
       },
       scales: {
-        x: { grid: { display: false }, ticks: { stepSize: 1, font: { size: 11 } }, border: { display: false } },
+        x: { grid: { display: false }, max: ratingMax, ticks: { stepSize: 1, font: { size: 11 } }, border: { display: false } },
         y: { grid: { display: false }, ticks: { font: { size: 11 } }, border: { display: false } }
       }
     }
@@ -173,7 +223,7 @@ function buildRatingCard(col, index, grid, dataRows, nameIdx) {
   charts.push(chart);
 }
 
-function buildYnCard(col, index, grid, dataRows, nameIdx) {
+function buildYnCard(col, index, grid, dataRows, nameIdx, sheetName) {
   const yesCount = col.values.filter(v => /^yes$/i.test(String(v).trim())).length;
   const noCount = col.values.filter(v => /^no$/i.test(String(v).trim())).length;
   const total = yesCount + noCount;
@@ -185,11 +235,13 @@ function buildYnCard(col, index, grid, dataRows, nameIdx) {
 
   // Collect comments
   const comments = collectComments(col, dataRows, nameIdx, 'yesno');
-  const commentCount = comments.length;
   const cardId = `yn-comments-${index}`;
 
+  // Trend
+  const trend = getTrend(col.header, sheetName, 'yesno');
+
   const card = document.createElement('div');
-  card.className = 'card';
+  card.className = 'card' + (warn ? ' card-flagged' : '');
   card.style.animationDelay = (index * 0.06) + 's';
   card.innerHTML = `
     <div class="card-header">
@@ -217,6 +269,7 @@ function buildYnCard(col, index, grid, dataRows, nameIdx) {
         </div>
       </div>
     </div>
+    ${buildTrendHtml(trend)}
     ${buildCommentSection(comments, cardId)}
   `;
   grid.appendChild(card);
@@ -289,5 +342,31 @@ function toggleComments(id, btn) {
   }
 
   btn.classList.toggle('open', !isOpen);
-  btn.querySelector('.arrow').innerHTML = !isOpen ? '&#9662;' : '&#9654;';
+}
+
+function scrollToFlagged() {
+  const flagged = document.querySelectorAll('.card-flagged');
+  if (flagged.length) {
+    flagged[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+    flagged.forEach(card => {
+      card.classList.add('highlight');
+      setTimeout(() => card.classList.remove('highlight'), 2000);
+    });
+  }
+}
+
+function toggleCardSort() {
+  cardSortMode = cardSortMode === 'original' ? 'worst' : 'original';
+  if (currentRenderState) {
+    renderDashboard(currentRenderState.sheetName, currentRenderState.columns,
+      currentRenderState.dataRows, currentRenderState.headers);
+  }
+}
+
+function updateSortToggles() {
+  document.querySelectorAll('.sort-toggle').forEach(btn => {
+    btn.classList.toggle('active', cardSortMode === 'worst');
+    const label = btn.querySelector('.sort-toggle-label');
+    if (label) label.textContent = cardSortMode === 'worst' ? 'Original order' : 'Worst first';
+  });
 }

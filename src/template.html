@@ -4,9 +4,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Day 1 — Employee Onboarding Survey</title>
+<title>Onboarding Survey Dashboard</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -24,28 +25,29 @@
   <!-- Upload screen -->
   <div id="uploadScreen">
     <h1 style="font-family:'DM Serif Display',serif;">Onboarding Dashboard</h1>
-    <p class="sub">Upload your Excel file to generate the dashboard</p>
+    <p class="sub">Upload je Excel-bestanden om het dashboard te genereren</p>
     <div class="drop-zone" id="dropZone">
       <div class="icon">&#128203;</div>
-      <div class="label">Drop your .xlsx file here</div>
-      <div class="hint">or click to browse</div>
-      <input type="file" id="fileInput" accept=".xlsx,.xls">
+      <div class="label">Sleep je .xlsx bestanden hierheen</div>
+      <div class="hint">of klik om te bladeren (meerdere bestanden mogelijk)</div>
+      <input type="file" id="fileInput" accept=".xlsx,.xls" multiple>
     </div>
-    <div class="sheet-selector" id="sheetSelector"></div>
+    <div id="uploadSummary"></div>
   </div>
 
   <!-- Dashboard -->
   <div id="dashboard">
     <header>
-      <button class="back-btn" onclick="showUpload()">&larr; Upload different file</button>
-      <div class="dashboard-sheets" id="dashboardSheets"></div>
+      <button class="back-btn" onclick="showUpload()">&larr; Terug naar bestanden</button>
+      <div class="week-tabs" id="weekTabs"></div>
+      <div class="sheet-tabs dashboard-sheets" id="dashboardSheets"></div>
       <div class="header-top">
         <div class="header-title">
           <h1 id="dashTitle"></h1>
           <div class="subtitle" id="dashSubtitle"></div>
         </div>
         <div class="header-badge">
-          <span class="count" id="respondentCount"></span> respondents
+          <span class="count" id="respondentCount"></span> respondenten
         </div>
       </div>
     </header>
@@ -53,21 +55,47 @@
     <div class="kpi-strip" id="kpiStrip"></div>
 
     <div id="ratingSection" style="display:none">
-      <div class="section-label">Rating Questions — Scale 1 to 5</div>
+      <div class="section-header">
+        <div class="section-label">Rating Questions — Scale 1 to 5</div>
+        <div class="section-controls">
+          <div class="rating-legend" id="ratingLegend">
+            <span class="legend-item"><span class="legend-swatch" style="background:#C4504A"></span>1 Very poor</span>
+            <span class="legend-item"><span class="legend-swatch" style="background:#D47C3A"></span>2 Poor</span>
+            <span class="legend-item"><span class="legend-swatch" style="background:#D4A035"></span>3 Average</span>
+            <span class="legend-item"><span class="legend-swatch" style="background:#74A68D"></span>4 Good</span>
+            <span class="legend-item"><span class="legend-swatch" style="background:#2D6A4F"></span>5 Excellent</span>
+          </div>
+          <button class="sort-toggle" onclick="toggleCardSort()">
+            <i data-lucide="arrow-down-narrow-wide"></i>
+            <span class="sort-toggle-label">Worst first</span>
+          </button>
+        </div>
+      </div>
       <div class="card-grid" id="ratingGrid"></div>
     </div>
 
     <div id="ynSection" style="display:none">
-      <div class="section-label">Yes / No Questions</div>
+      <div class="section-header">
+        <div class="section-label">Yes / No Questions</div>
+        <button class="sort-toggle" onclick="toggleCardSort()">
+          <i data-lucide="arrow-down-narrow-wide"></i>
+          <span class="sort-toggle-label">Worst first</span>
+        </button>
+      </div>
       <div class="card-grid" id="ynGrid"></div>
     </div>
 
     <div class="table-section">
       <div class="section-label">Individual Responses</div>
       <button class="table-toggle" id="tableToggle" onclick="toggleTable()">
-        <span class="arrow">&#9654;</span> Show all employee responses
+        <i data-lucide="chevron-right" class="arrow"></i>
+        <span class="toggle-text">Show all employee responses</span>
       </button>
       <div class="table-container" id="tableContainer">
+        <div class="table-search">
+          <i data-lucide="search"></i>
+          <input type="text" id="tableSearchInput" placeholder="Search employees..." oninput="filterTable(this.value)">
+        </div>
         <div class="table-wrap">
           <table>
             <thead id="tableHead"></thead>
