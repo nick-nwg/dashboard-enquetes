@@ -9,33 +9,35 @@
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #FAF6F1;
+    --bg: #F4F6FA;
     --bg-card: #FFFFFF;
-    --terracotta: #C4654A;
-    --terracotta-light: #E8A491;
-    --deep-green: #2D6A4F;
-    --sage: #74A68D;
-    --sage-light: #B7D4C7;
-    --amber: #D4A035;
-    --amber-light: #F0D68A;
-    --text: #2C2520;
-    --text-muted: #7A706A;
-    --text-light: #A89E97;
-    --border: #E8E0D8;
-    --red: #C4504A;
-    --red-light: #F2D4D2;
-    --shadow: 0 1px 3px rgba(44,37,32,0.06), 0 6px 16px rgba(44,37,32,0.04);
-    --shadow-hover: 0 2px 8px rgba(44,37,32,0.08), 0 12px 28px rgba(44,37,32,0.06);
+    --terracotta: #4294A8;
+    --terracotta-light: #9FCAD6;
+    --deep-green: #262E61;
+    --sage: #5B9DAD;
+    --sage-light: #C8E0E8;
+    --amber: #E27B0A;
+    --amber-light: #F5D4A8;
+    --text: #1E2340;
+    --text-muted: #6B7280;
+    --text-light: #9CA3AF;
+    --border: #DFE3EA;
+    --red: #CA3725;
+    --red-light: #F5D3CF;
+    --green: #4294A8;
+    --green-light: #C8E0E8;
+    --shadow: 0 1px 3px rgba(38,46,97,0.06), 0 6px 16px rgba(38,46,97,0.04);
+    --shadow-hover: 0 2px 8px rgba(38,46,97,0.08), 0 12px 28px rgba(38,46,97,0.06);
     --radius: 12px;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
-    font-family: 'IBM Plex Sans', sans-serif;
+    font-family: 'Montserrat', sans-serif;
     background: var(--bg);
     color: var(--text);
     line-height: 1.6;
@@ -57,7 +59,7 @@
   }
 
   #uploadScreen h1 {
-    font-family: 'DM Serif Display', serif; font-size: 2.4rem; font-weight: 400;
+    font-family: 'Montserrat', sans-serif; font-size: 2.4rem; font-weight: 800;
     letter-spacing: -0.02em; margin-bottom: 8px;
   }
 
@@ -69,7 +71,7 @@
   }
 
   .drop-zone:hover, .drop-zone.dragover {
-    border-color: var(--terracotta); background: rgba(196,101,74,0.04);
+    border-color: var(--terracotta); background: rgba(66,148,168,0.04);
   }
 
   .drop-zone .icon { font-size: 2.5rem; margin-bottom: 16px; }
@@ -90,7 +92,7 @@
 
   .sheet-btn {
     padding: 8px 20px; border-radius: 100px; border: 1.5px solid var(--border);
-    background: var(--bg-card); font-family: 'IBM Plex Sans', sans-serif;
+    background: var(--bg-card); font-family: 'Montserrat', sans-serif;
     font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease;
     color: var(--text-muted);
   }
@@ -113,7 +115,7 @@
   }
 
   .header-title h1 {
-    font-family: 'DM Serif Display', serif; font-size: 2.4rem; font-weight: 400;
+    font-family: 'Montserrat', sans-serif; font-size: 2.4rem; font-weight: 800;
     letter-spacing: -0.02em; line-height: 1.15;
   }
 
@@ -122,19 +124,19 @@
   }
 
   .header-badge {
-    display: flex; align-items: center; gap: 10px; background: var(--terracotta);
+    display: flex; align-items: center; gap: 10px; background: var(--deep-green);
     color: white; padding: 10px 20px; border-radius: 100px; font-size: 0.85rem;
     font-weight: 600; letter-spacing: 0.02em; white-space: nowrap;
   }
 
   .header-badge .count {
-    font-family: 'DM Serif Display', serif; font-size: 1.4rem; font-weight: 400; line-height: 1;
+    font-family: 'Montserrat', sans-serif; font-size: 1.4rem; font-weight: 800; line-height: 1;
   }
 
   .back-btn {
     display: inline-flex; align-items: center; gap: 6px; color: var(--terracotta);
     font-size: 0.82rem; font-weight: 600; cursor: pointer; border: none; background: none;
-    font-family: 'IBM Plex Sans', sans-serif; margin-bottom: 16px; padding: 6px 0;
+    font-family: 'Montserrat', sans-serif; margin-bottom: 16px; padding: 6px 0;
     transition: opacity 0.2s;
   }
   .back-btn:hover { opacity: 0.7; }
@@ -154,12 +156,12 @@
 
   .kpi-item:hover { box-shadow: var(--shadow-hover); transform: translateY(-2px); }
   .kpi-item::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
-  .kpi-item.good::before { background: var(--deep-green); }
+  .kpi-item.good::before { background: var(--green); }
   .kpi-item.warning::before { background: var(--amber); }
   .kpi-item.danger::before { background: var(--red); }
 
   .kpi-value {
-    font-family: 'DM Serif Display', serif; font-size: 2rem; color: var(--text); line-height: 1.1;
+    font-family: 'Montserrat', sans-serif; font-size: 2rem; font-weight: 800; color: var(--text); line-height: 1.1;
   }
 
   .kpi-label {
@@ -197,7 +199,7 @@
     display: inline-flex; align-items: center; gap: 5px;
     font-size: 0.72rem; font-weight: 600; color: var(--text-muted);
     background: none; border: 1px solid var(--border); border-radius: 100px;
-    padding: 5px 12px; cursor: pointer; font-family: 'IBM Plex Sans', sans-serif;
+    padding: 5px 12px; cursor: pointer; font-family: 'Montserrat', sans-serif;
     transition: all 0.2s; white-space: nowrap;
   }
   .sort-toggle:hover { border-color: var(--terracotta-light); color: var(--text); }
@@ -228,10 +230,10 @@
   .card-metric { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
 
   .card-metric .value {
-    font-family: 'DM Serif Display', serif; font-size: 1.5rem; line-height: 1;
+    font-family: 'Montserrat', sans-serif; font-size: 1.5rem; font-weight: 800; line-height: 1;
   }
 
-  .card-metric .value.good { color: var(--deep-green); }
+  .card-metric .value.good { color: var(--green); }
   .card-metric .value.warning { color: var(--amber); }
   .card-metric .value.danger { color: var(--red); }
 
@@ -252,7 +254,7 @@
     font-size: 0.72rem; color: var(--text-muted); margin-top: 8px;
   }
   .card-trend svg { width: 14px; height: 14px; flex-shrink: 0; }
-  .card-trend.trend-up { color: var(--deep-green); }
+  .card-trend.trend-up { color: var(--green); }
   .card-trend.trend-down { color: var(--red); }
   .card-trend.trend-flat { color: var(--text-light); }
 
@@ -261,7 +263,7 @@
     display: flex; align-items: center; gap: 6px; margin-top: 14px; padding: 8px 0 0;
     border-top: 1px solid var(--border); font-size: 0.78rem; font-weight: 600;
     color: var(--terracotta); cursor: pointer; background: none; border-left: none;
-    border-right: none; border-bottom: none; font-family: 'IBM Plex Sans', sans-serif;
+    border-right: none; border-bottom: none; font-family: 'Montserrat', sans-serif;
     width: 100%; text-align: left; transition: opacity 0.2s;
   }
   .card-comments-toggle:hover { opacity: 0.7; }
@@ -276,7 +278,7 @@
   .card-comments-list { padding-top: 10px; }
 
   .comment-item {
-    display: flex; gap: 10px; padding: 8px 0; border-bottom: 1px solid #F0EBE5;
+    display: flex; gap: 10px; padding: 8px 0; border-bottom: 1px solid #E8EBF0;
     font-size: 0.8rem; line-height: 1.45;
   }
   .comment-item:last-child { border-bottom: none; }
@@ -299,7 +301,7 @@
     white-space: nowrap; flex-shrink: 0; height: fit-content;
   }
   .comment-badge.low { background: var(--red-light); color: var(--red); }
-  .comment-badge.mid { background: var(--amber-light); color: #8B6914; }
+  .comment-badge.mid { background: var(--amber-light); color: #9B5A00; }
   .comment-badge.no { background: var(--red-light); color: var(--red); }
 
   .donut-wrapper { width: 140px; height: 140px; position: relative; }
@@ -309,8 +311,8 @@
     text-align: center; pointer-events: none;
   }
 
-  .donut-center-label .pct { font-family: 'DM Serif Display', serif; font-size: 1.3rem; line-height: 1; }
-  .donut-center-label .pct.good { color: var(--deep-green); }
+  .donut-center-label .pct { font-family: 'Montserrat', sans-serif; font-size: 1.3rem; font-weight: 800; line-height: 1; }
+  .donut-center-label .pct.good { color: var(--green); }
   .donut-center-label .pct.warning { color: var(--amber); }
   .donut-center-label .pct.danger { color: var(--red); }
   .donut-center-label .lbl { font-size: .65rem; color: var(--text-light); text-transform: uppercase; letter-spacing: .08em; font-weight: 600; }
@@ -327,9 +329,9 @@
     border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 22px;
     font-size: 0.88rem; font-weight: 600; color: var(--text); cursor: pointer;
     width: 100%; text-align: left; transition: all 0.2s ease;
-    font-family: 'IBM Plex Sans', sans-serif;
+    font-family: 'Montserrat', sans-serif;
   }
-  .table-toggle:hover { border-color: var(--terracotta-light); background: #FDF9F6; }
+  .table-toggle:hover { border-color: var(--terracotta-light); background: #F8F9FC; }
   .table-toggle .arrow { width: 16px; height: 16px; flex-shrink: 0; transition: transform 0.3s ease; color: var(--terracotta); }
   .table-toggle.open .arrow { transform: rotate(90deg); }
 
@@ -340,7 +342,7 @@
   }
   .table-search svg { width: 16px; height: 16px; color: var(--text-light); flex-shrink: 0; }
   .table-search input {
-    border: none; background: none; font-family: 'IBM Plex Sans', sans-serif;
+    border: none; background: none; font-family: 'Montserrat', sans-serif;
     font-size: 0.85rem; color: var(--text); outline: none; width: 100%;
   }
   .table-search input::placeholder { color: var(--text-light); }
@@ -356,14 +358,14 @@
   table { width: 100%; border-collapse: collapse; font-size: 0.82rem; white-space: nowrap; }
 
   thead th {
-    background: #F5EFE9; padding: 12px 14px; text-align: left; font-weight: 600;
+    background: #EEF0F5; padding: 12px 14px; text-align: left; font-weight: 600;
     font-size: 0.7rem; text-transform: uppercase; letter-spacing: .06em;
     color: var(--text-muted); border-bottom: 2px solid var(--border); position: sticky; top: 0;
   }
 
   tbody td { padding: 10px 14px; border-bottom: 1px solid var(--border); }
   tbody tr:last-child td { border-bottom: none; }
-  tbody tr:hover { background: #FDF9F6; }
+  tbody tr:hover { background: #F8F9FC; }
   .td-name { font-weight: 600; }
 
   .rating-cell {
@@ -371,12 +373,12 @@
     display: inline-block; width: 28px; height: 28px; line-height: 28px; font-size: 0.78rem;
   }
   .rating-cell.r1,.rating-cell.r2 { background: var(--red-light); color: var(--red); }
-  .rating-cell.r3 { background: var(--amber-light); color: #8B6914; }
-  .rating-cell.r4 { background: var(--sage-light); color: #1D5037; }
-  .rating-cell.r5 { background: #C5E4D4; color: var(--deep-green); }
+  .rating-cell.r3 { background: var(--amber-light); color: #9B5A00; }
+  .rating-cell.r4 { background: var(--sage-light); color: #1A5568; }
+  .rating-cell.r5 { background: #C5D0E8; color: var(--deep-green); }
 
   .yn-cell { font-weight: 600; font-size: 0.78rem; }
-  .yn-cell.yes { color: var(--deep-green); }
+  .yn-cell.yes { color: var(--green); }
   .yn-cell.no { color: var(--red); }
 
   footer {
@@ -391,11 +393,11 @@
 
   .week-btn {
     padding: 6px 16px; border-radius: 100px; border: 1.5px solid var(--deep-green);
-    background: var(--bg-card); font-family: 'IBM Plex Sans', sans-serif;
+    background: var(--bg-card); font-family: 'Montserrat', sans-serif;
     font-size: 0.75rem; font-weight: 700; cursor: pointer; transition: all 0.2s ease;
     color: var(--deep-green); text-transform: uppercase; letter-spacing: 0.04em;
   }
-  .week-btn:hover { background: rgba(45,106,79,0.08); }
+  .week-btn:hover { background: rgba(38,46,97,0.08); }
   .week-btn.active { background: var(--deep-green); color: white; }
 
   /* Sheet tabs (secondary navigation) */
@@ -407,7 +409,7 @@
   .upload-summary { margin-top: 32px; width: 100%; max-width: 480px; }
 
   .upload-summary-heading {
-    font-family: 'DM Serif Display', serif; font-size: 1.2rem; font-weight: 400;
+    font-family: 'Montserrat', sans-serif; font-size: 1.2rem; font-weight: 800;
     margin-bottom: 16px; color: var(--text);
   }
 
@@ -427,7 +429,7 @@
 
   .upload-file-week {
     font-weight: 700; font-size: 0.82rem; color: var(--deep-green);
-    background: rgba(45,106,79,0.08); padding: 3px 10px; border-radius: 100px;
+    background: rgba(38,46,97,0.08); padding: 3px 10px; border-radius: 100px;
     white-space: nowrap;
   }
 
@@ -449,24 +451,24 @@
 
   .upload-open-btn {
     width: 100%; padding: 14px; border: none; border-radius: var(--radius);
-    background: var(--terracotta); color: white; font-family: 'IBM Plex Sans', sans-serif;
+    background: var(--terracotta); color: white; font-family: 'Montserrat', sans-serif;
     font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: all 0.2s;
   }
-  .upload-open-btn:hover { background: #B55A42; }
+  .upload-open-btn:hover { background: #357B8F; }
 
   /* Week number prompt modal */
   .week-prompt-overlay {
-    position: fixed; inset: 0; background: rgba(44,37,32,0.5); z-index: 1001;
+    position: fixed; inset: 0; background: rgba(38,46,97,0.4); z-index: 1001;
     display: flex; align-items: center; justify-content: center; padding: 24px;
   }
 
   .week-prompt-modal {
     background: var(--bg-card); border-radius: 16px; padding: 32px;
-    max-width: 400px; width: 100%; box-shadow: 0 12px 40px rgba(44,37,32,0.15);
+    max-width: 400px; width: 100%; box-shadow: 0 12px 40px rgba(38,46,97,0.15);
   }
 
   .week-prompt-modal h3 {
-    font-family: 'DM Serif Display', serif; font-size: 1.2rem; font-weight: 400;
+    font-family: 'Montserrat', sans-serif; font-size: 1.2rem; font-weight: 800;
     margin-bottom: 12px;
   }
 
@@ -478,7 +480,7 @@
 
   .week-prompt-input {
     width: 100%; padding: 10px 14px; border: 1.5px solid var(--border);
-    border-radius: 8px; font-family: 'IBM Plex Sans', sans-serif; font-size: 1rem;
+    border-radius: 8px; font-family: 'Montserrat', sans-serif; font-size: 1rem;
     margin: 8px 0 16px; outline: none; transition: border-color 0.2s;
   }
   .week-prompt-input:focus { border-color: var(--terracotta); }
@@ -489,7 +491,7 @@
 
   .week-prompt-skip {
     padding: 8px 18px; border: 1px solid var(--border); border-radius: 8px;
-    background: var(--bg-card); font-family: 'IBM Plex Sans', sans-serif;
+    background: var(--bg-card); font-family: 'Montserrat', sans-serif;
     font-size: 0.85rem; font-weight: 600; color: var(--text-muted); cursor: pointer;
     transition: all 0.2s;
   }
@@ -497,10 +499,10 @@
 
   .week-prompt-ok {
     padding: 8px 24px; border: none; border-radius: 8px;
-    background: var(--terracotta); color: white; font-family: 'IBM Plex Sans', sans-serif;
+    background: var(--terracotta); color: white; font-family: 'Montserrat', sans-serif;
     font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s;
   }
-  .week-prompt-ok:hover { background: #B55A42; }
+  .week-prompt-ok:hover { background: #357B8F; }
 
   .file-label {
     font-size: 0.78rem; color: var(--text-light); font-weight: 500;
@@ -508,7 +510,7 @@
 
   /* Loading overlay */
   .loading-overlay {
-    display: none; position: fixed; inset: 0; background: rgba(250,246,241,0.85);
+    display: none; position: fixed; inset: 0; background: rgba(244,246,250,0.85);
     z-index: 1000; align-items: center; justify-content: center; flex-direction: column; gap: 16px;
   }
   .loading-overlay.visible { display: flex; }
@@ -521,7 +523,7 @@
 
   /* Sortable table */
   thead th.sortable { cursor: pointer; user-select: none; }
-  thead th.sortable:hover { background: #EDE6DE; }
+  thead th.sortable:hover { background: #DDE1E8; }
   .sort-indicator {
     display: inline-flex; vertical-align: middle; margin-left: 4px;
   }
@@ -562,7 +564,7 @@
 <div class="container">
   <!-- Upload screen -->
   <div id="uploadScreen">
-    <h1 style="font-family:'DM Serif Display',serif;">Onboarding Dashboard</h1>
+    <h1 style="font-family:'Montserrat',sans-serif;font-weight:800;">Onboarding Dashboard</h1>
     <p class="sub">Upload je Excel-bestanden om het dashboard te genereren</p>
     <div class="drop-zone" id="dropZone">
       <div class="icon">&#128203;</div>
@@ -597,11 +599,11 @@
         <div class="section-label">Rating Questions — Scale 1 to 5</div>
         <div class="section-controls">
           <div class="rating-legend" id="ratingLegend">
-            <span class="legend-item"><span class="legend-swatch" style="background:#C4504A"></span>1 Very poor</span>
-            <span class="legend-item"><span class="legend-swatch" style="background:#D47C3A"></span>2 Poor</span>
+            <span class="legend-item"><span class="legend-swatch" style="background:#CA3725"></span>1 Very poor</span>
+            <span class="legend-item"><span class="legend-swatch" style="background:#E27B0A"></span>2 Poor</span>
             <span class="legend-item"><span class="legend-swatch" style="background:#D4A035"></span>3 Average</span>
-            <span class="legend-item"><span class="legend-swatch" style="background:#74A68D"></span>4 Good</span>
-            <span class="legend-item"><span class="legend-swatch" style="background:#2D6A4F"></span>5 Excellent</span>
+            <span class="legend-item"><span class="legend-swatch" style="background:#4294A8"></span>4 Good</span>
+            <span class="legend-item"><span class="legend-swatch" style="background:#262E61"></span>5 Excellent</span>
           </div>
           <button class="sort-toggle" onclick="toggleCardSort()">
             <i data-lucide="arrow-down-narrow-wide"></i>
@@ -1230,7 +1232,7 @@ function buildRatingCard(col, index, grid, dataRows, nameIdx, ratingMax, sheetNa
     options: {
       indexAxis: 'y', responsive: true, maintainAspectRatio: false,
       plugins: { legend: { display: false },
-        tooltip: { backgroundColor: '#2C2520', padding: 10, cornerRadius: 8,
+        tooltip: { backgroundColor: '#1E2340', padding: 10, cornerRadius: 8,
           callbacks: { label: c => `${c.raw} respondent${c.raw !== 1 ? 's' : ''}` }
         }
       },
@@ -1284,7 +1286,7 @@ function buildYnCard(col, index, grid, dataRows, nameIdx, sheetName) {
           Yes: <strong style="color:var(--text)">${yesCount}</strong>
         </div>
         <div class="donut-legend-row">
-          <span class="donut-legend-swatch" style="background:var(--terracotta-light)"></span>
+          <span class="donut-legend-swatch" style="background:var(--sage-light)"></span>
           No: <strong style="color:var(--text)">${noCount}</strong>
         </div>
       </div>
@@ -1299,12 +1301,12 @@ function buildYnCard(col, index, grid, dataRows, nameIdx, sheetName) {
     type: 'doughnut',
     data: {
       labels: ['Yes','No'],
-      datasets: [{ data: [yesCount, noCount], backgroundColor: ['#2D6A4F','#E8A491'], borderWidth: 0, spacing: 2 }]
+      datasets: [{ data: [yesCount, noCount], backgroundColor: ['#262E61','#C8E0E8'], borderWidth: 0, spacing: 2 }]
     },
     options: {
       responsive: true, maintainAspectRatio: false, cutout: '68%',
       plugins: { legend: { display: false },
-        tooltip: { backgroundColor: '#2C2520', padding: 10, cornerRadius: 8, caretPadding: 10,
+        tooltip: { backgroundColor: '#1E2340', padding: 10, cornerRadius: 8, caretPadding: 10,
           callbacks: {
             title: () => '',
             label: c => ` ${c.label}: ${c.raw} (${(c.raw/total*100).toFixed(0)}%)`
@@ -1317,13 +1319,13 @@ function buildYnCard(col, index, grid, dataRows, nameIdx, sheetName) {
 }
 
 // --- RENDERING ---
-const barColors = ['#C4504A','#D47C3A','#D4A035','#74A68D','#2D6A4F'];
+const barColors = ['#CA3725','#E27B0A','#D4A035','#4294A8','#262E61'];
 const statusClass = (v, t=4) => v >= t ? 'good' : v >= 3.5 ? 'warning' : 'danger';
 const pctStatus = (p, t=80) => p >= t ? 'good' : p >= 60 ? 'warning' : 'danger';
 
-Chart.defaults.font.family = "'IBM Plex Sans', sans-serif";
+Chart.defaults.font.family = "'Montserrat', sans-serif";
 Chart.defaults.font.size = 12;
-Chart.defaults.color = '#7A706A';
+Chart.defaults.color = '#6B7280';
 
 function renderDashboard(sheetName, columns, dataRows, headers) {
   currentRenderState = { sheetName, columns, dataRows, headers };

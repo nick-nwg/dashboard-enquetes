@@ -102,7 +102,7 @@ function buildRatingCard(col, index, grid, dataRows, nameIdx, ratingMax, sheetNa
     options: {
       indexAxis: 'y', responsive: true, maintainAspectRatio: false,
       plugins: { legend: { display: false },
-        tooltip: { backgroundColor: '#2C2520', padding: 10, cornerRadius: 8,
+        tooltip: { backgroundColor: '#1E2340', padding: 10, cornerRadius: 8,
           callbacks: { label: c => `${c.raw} respondent${c.raw !== 1 ? 's' : ''}` }
         }
       },
@@ -156,7 +156,7 @@ function buildYnCard(col, index, grid, dataRows, nameIdx, sheetName) {
           Yes: <strong style="color:var(--text)">${yesCount}</strong>
         </div>
         <div class="donut-legend-row">
-          <span class="donut-legend-swatch" style="background:var(--terracotta-light)"></span>
+          <span class="donut-legend-swatch" style="background:var(--sage-light)"></span>
           No: <strong style="color:var(--text)">${noCount}</strong>
         </div>
       </div>
@@ -171,12 +171,12 @@ function buildYnCard(col, index, grid, dataRows, nameIdx, sheetName) {
     type: 'doughnut',
     data: {
       labels: ['Yes','No'],
-      datasets: [{ data: [yesCount, noCount], backgroundColor: ['#2D6A4F','#E8A491'], borderWidth: 0, spacing: 2 }]
+      datasets: [{ data: [yesCount, noCount], backgroundColor: ['#262E61','#C8E0E8'], borderWidth: 0, spacing: 2 }]
     },
     options: {
       responsive: true, maintainAspectRatio: false, cutout: '68%',
       plugins: { legend: { display: false },
-        tooltip: { backgroundColor: '#2C2520', padding: 10, cornerRadius: 8, caretPadding: 10,
+        tooltip: { backgroundColor: '#1E2340', padding: 10, cornerRadius: 8, caretPadding: 10,
           callbacks: {
             title: () => '',
             label: c => ` ${c.label}: ${c.raw} (${(c.raw/total*100).toFixed(0)}%)`
