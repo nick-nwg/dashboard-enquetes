@@ -8,7 +8,7 @@ Employee onboarding survey dashboard — reads Excel (.xlsx) files client-side a
 
 ## Build
 
-Source lives in `src/`. Run `uv run build.py` to produce `dashboard.html` (single-file output). **Do not edit `dashboard.html` directly** — edit files in `src/` and rebuild.
+Source lives in `src/`. Run `just build` (or `uv run build.py`) to produce `dashboard.html` (single-file output). **Do not edit `dashboard.html` directly** — edit files in `src/` and rebuild.
 
 ## Architecture
 
@@ -20,9 +20,12 @@ src/
     utils.js                # esc(), showLoading/hideLoading, state vars
     file-handling.js        # Drag-drop, FileReader, sheet navigation
     data-processing.js      # loadSheet, classifyColumns, detectType, cleanHeader
-    rendering.js            # renderDashboard, KPIs, cards, comments, charts
+    kpis.js                 # buildKPIs — KPI strip calculations and rendering
+    cards.js                # buildRatingCard, buildYnCard, comments, trends
+    rendering.js            # renderDashboard orchestration, sort/scroll helpers
     table.js                # buildTable, sortTable, renderTableBody, toggleTable
 build.py                    # Inlines src/ files → dashboard.html (stdlib only)
+justfile                    # `just build` command runner
 ```
 
 **`dashboard.html`** — Generated single-file HTML/CSS/JS dashboard. CDN dependencies:
