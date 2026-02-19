@@ -7,7 +7,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 SRC = ROOT / "src"
 TEMPLATE = SRC / "template.html"
-OUTPUT = ROOT / "dashboard.html"
+OUTPUT = ROOT / "index.html"
 
 INLINE_RE = re.compile(r"/\* BUILD:INLINE (.+?) \*/")
 
