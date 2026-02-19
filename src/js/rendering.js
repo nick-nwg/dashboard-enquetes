@@ -1,11 +1,11 @@
 // --- RENDERING ---
-const barColors = ['#C4504A','#D47C3A','#D4A035','#74A68D','#2D6A4F'];
+const barColors = ['#CA3725','#E27B0A','#D4A035','#4294A8','#262E61'];
 const statusClass = (v, t=4) => v >= t ? 'good' : v >= 3.5 ? 'warning' : 'danger';
 const pctStatus = (p, t=80) => p >= t ? 'good' : p >= 60 ? 'warning' : 'danger';
 
-Chart.defaults.font.family = "'IBM Plex Sans', sans-serif";
+Chart.defaults.font.family = "'Montserrat', sans-serif";
 Chart.defaults.font.size = 12;
-Chart.defaults.color = '#7A706A';
+Chart.defaults.color = '#6B7280';
 
 function renderDashboard(sheetName, columns, dataRows, headers) {
   currentRenderState = { sheetName, columns, dataRows, headers };
