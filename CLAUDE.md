@@ -8,7 +8,7 @@ Employee onboarding survey dashboard — reads Excel (.xlsx) files client-side a
 
 ## Build
 
-Source lives in `src/`. Run `uv run build.py` to produce `dashboard-day1.html` (single-file output). **Do not edit `dashboard-day1.html` directly** — edit files in `src/` and rebuild.
+Source lives in `src/`. Run `uv run build.py` to produce `dashboard.html` (single-file output). **Do not edit `dashboard.html` directly** — edit files in `src/` and rebuild.
 
 ## Architecture
 
@@ -22,10 +22,10 @@ src/
     data-processing.js      # loadSheet, classifyColumns, detectType, cleanHeader
     rendering.js            # renderDashboard, KPIs, cards, comments, charts
     table.js                # buildTable, sortTable, renderTableBody, toggleTable
-build.py                    # Inlines src/ files → dashboard-day1.html (stdlib only)
+build.py                    # Inlines src/ files → dashboard.html (stdlib only)
 ```
 
-**`dashboard-day1.html`** — Generated single-file HTML/CSS/JS dashboard. CDN dependencies:
+**`dashboard.html`** — Generated single-file HTML/CSS/JS dashboard. CDN dependencies:
 - **SheetJS (xlsx)** — Parses Excel files in the browser via drag-and-drop/file picker
 - **Chart.js** — Renders bar charts (rating distributions) and doughnut charts (yes/no splits)
 - **Google Fonts** — DM Serif Display + IBM Plex Sans
@@ -34,7 +34,7 @@ build.py                    # Inlines src/ files → dashboard-day1.html (stdlib
 
 ## How the Dashboard Works
 
-1. User uploads an .xlsx file → SheetJS parses it → sheet selector appears
+1. User uploads one or more .xlsx files → SheetJS parses them → upload summary appears with week numbers
 2. `classifyColumns()` auto-detects column types from headers and data values:
    - `name`, `client`, `coach`, `date` — metadata columns
    - `rating` — 1-5 scale questions → horizontal bar charts
