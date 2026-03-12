@@ -25,6 +25,7 @@ let cardSortMode = 'original';
 // Multi-file state
 let allWorkbooks = {};   // { weekNum: { fileName, workbook, allSheetData } }
 let currentWeek = null;
+let overviewMode = false;
 
 function extractWeekNumber(filename) {
   const m = filename.match(/week\s*[-_]?\s*(\d+)/i);

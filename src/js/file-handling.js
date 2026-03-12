@@ -152,11 +152,23 @@ function openDashboard() {
   const weeks = Object.keys(allWorkbooks).map(Number).sort((a, b) => a - b);
   if (weeks.length === 0) return;
 
-  // Select first week
-  selectWeek(weeks[0]);
-  // Pick first sheet that has data, fall back to first sheet
-  const firstSheet = workbook.SheetNames.find(name => allSheetData[name]) || workbook.SheetNames[0];
-  loadSheet(firstSheet);
+  if (weeks.length > 1) {
+    // Multiple files: open overview mode
+    selectOverview();
+  } else {
+    // Single file: open first week
+    selectWeek(weeks[0]);
+    const firstSheet = workbook.SheetNames.find(name => allSheetData[name]) || workbook.SheetNames[0];
+    loadSheet(firstSheet);
+  }
+}
+
+function selectOverview() {
+  overviewMode = true;
+  currentWeek = null;
+  const sheetNames = getOverviewSheetNames();
+  if (sheetNames.length === 0) return;
+  loadOverviewSheet(sheetNames[0]);
 }
 
 function renderDashboardSheets(currentSheet) {
@@ -167,11 +179,22 @@ function renderDashboardSheets(currentSheet) {
   weekContainer.innerHTML = '';
   if (weeks.length > 1) {
     weekContainer.style.display = 'flex';
+
+    // "Overzicht" tab
+    const overBtn = document.createElement('button');
+    overBtn.className = 'week-btn week-btn-overview' + (overviewMode ? ' active' : '');
+    overBtn.textContent = 'Overzicht';
+    overBtn.onclick = () => {
+      selectOverview();
+    };
+    weekContainer.appendChild(overBtn);
+
     weeks.forEach(w => {
       const btn = document.createElement('button');
-      btn.className = 'week-btn' + (w === currentWeek ? ' active' : '');
+      btn.className = 'week-btn' + (!overviewMode && w === currentWeek ? ' active' : '');
       btn.textContent = 'Week ' + w;
       btn.onclick = () => {
+        overviewMode = false;
         selectWeek(w);
         const first = workbook.SheetNames.find(n => allSheetData[n]) || workbook.SheetNames[0];
         loadSheet(first);
@@ -185,11 +208,12 @@ function renderDashboardSheets(currentSheet) {
   // Sheet tabs
   const container = document.getElementById('dashboardSheets');
   container.innerHTML = '';
-  workbook.SheetNames.forEach(name => {
+  const sheetNames = overviewMode ? getOverviewSheetNames() : workbook.SheetNames;
+  sheetNames.forEach(name => {
     const btn = document.createElement('button');
     btn.className = 'sheet-btn' + (name === currentSheet ? ' active' : '');
     btn.textContent = name;
-    btn.onclick = () => loadSheet(name);
+    btn.onclick = () => overviewMode ? loadOverviewSheet(name) : loadSheet(name);
     container.appendChild(btn);
   });
 }
