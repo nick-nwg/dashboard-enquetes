@@ -80,6 +80,7 @@ function detectType(header, values) {
   const h = header.toLowerCase();
 
   // Known metadata columns
+  if (/^week$/i.test(h)) return 'week';
   if (/start\s*day/i.test(h) || /date\s*of\s*form/i.test(h)) return 'date';
   if (/name.*employee/i.test(h)) return 'name';
   if (/name.*client/i.test(h)) return 'client';
@@ -138,6 +139,124 @@ function processAllSheets() {
     });
     allSheetData[name] = stats;
   });
+}
+
+function getOverviewSheetNames() {
+  const names = new Set();
+  Object.values(allWorkbooks).forEach(entry => {
+    entry.workbook.SheetNames.forEach(name => names.add(name));
+  });
+  return [...names].sort((a, b) => {
+    const parse = s => {
+      const d = s.match(/day\s*(\d+)/i);
+      if (d) return parseInt(d[1]);
+      const w = s.match(/week\s*(\d+)/i);
+      if (w) return parseInt(w[1]) * 7;
+      return 999;
+    };
+    return parse(a) - parse(b);
+  });
+}
+
+function loadOverviewSheet(sheetName) {
+  // Destroy existing charts
+  charts.forEach(c => c.destroy());
+  charts = [];
+
+  const weeks = Object.keys(allWorkbooks).map(Number).sort((a, b) => a - b);
+  let mergedHeaders = null;
+  let mergedRows = [];
+  let weekColIndex = null;
+
+  weeks.forEach(weekNum => {
+    const entry = allWorkbooks[weekNum];
+    const ws = entry.workbook.Sheets[sheetName];
+    if (!ws) return;
+
+    const raw = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+    if (raw.length < 2) return;
+
+    const headerRow = raw[0];
+
+    let dataStartRow = 1;
+    if (raw.length > 1) {
+      const secondRow = raw[1];
+      if (secondRow.some(cell => typeof cell === 'string' && /\d\s*-\s*(very\s+)?poor/i.test(cell))) dataStartRow = 2;
+    }
+
+    const dataRows = raw.slice(dataStartRow).filter(row =>
+      row.some(cell => cell !== '' && cell !== null && cell !== undefined)
+    );
+
+    if (dataRows.length === 0) return;
+
+    if (!mergedHeaders) {
+      // Add "Week" as the first column
+      mergedHeaders = ['Week', ...headerRow];
+      weekColIndex = 0;
+    }
+
+    // Prepend week number to each row
+    dataRows.forEach(row => {
+      mergedRows.push(['Week ' + weekNum, ...row]);
+    });
+  });
+
+  if (!mergedHeaders || mergedRows.length === 0) {
+    return alert('No data found for "' + sheetName + '" across uploaded files.');
+  }
+
+  // Classify columns (the "Week" column will be detected as text, which is fine)
+  const columns = classifyColumns(mergedHeaders, mergedRows);
+
+  // Build dashboard
+  document.getElementById('uploadScreen').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
+
+  renderDashboardSheets(sheetName);
+
+  // Build allSheetData for trend support in overview mode
+  const overviewSheetNames = getOverviewSheetNames();
+  allSheetData = {};
+  overviewSheetNames.forEach(sName => {
+    const allRows = [];
+    Object.values(allWorkbooks).forEach(entry => {
+      const ws = entry.workbook.Sheets[sName];
+      if (!ws) return;
+      const raw = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+      if (raw.length < 2) return;
+      let dsr = 1;
+      if (raw.length > 1 && raw[1].some(cell => typeof cell === 'string' && /\d\s*-\s*(very\s+)?poor/i.test(cell))) dsr = 2;
+      const dr = raw.slice(dsr).filter(row => row.some(cell => cell !== '' && cell !== null && cell !== undefined));
+      allRows.push(...dr);
+    });
+    if (allRows.length === 0) return;
+    // Use headers from the first workbook that has this sheet
+    let hdrs = null;
+    for (const entry of Object.values(allWorkbooks)) {
+      const ws = entry.workbook.Sheets[sName];
+      if (ws) {
+        const raw = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+        if (raw.length >= 1) { hdrs = raw[0]; break; }
+      }
+    }
+    if (!hdrs) return;
+    const cols = classifyColumns(hdrs, allRows);
+    const stats = {};
+    cols.forEach(col => {
+      if (col.type === 'rating') {
+        const nums = col.values.map(Number).filter(v => !isNaN(v) && v >= 1 && v <= 5);
+        if (nums.length) stats[col.header] = { type: 'rating', avg: nums.reduce((a,b) => a+b, 0) / nums.length };
+      } else if (col.type === 'yesno') {
+        const yes = col.values.filter(v => /^yes$/i.test(String(v).trim())).length;
+        const total = col.values.filter(v => /^(yes|no)$/i.test(String(v).trim())).length;
+        if (total) stats[col.header] = { type: 'yesno', pct: yes / total * 100 };
+      }
+    });
+    allSheetData[sName] = stats;
+  });
+
+  renderDashboard(sheetName, columns, mergedRows, mergedHeaders);
 }
 
 function getSheetChronOrder() {

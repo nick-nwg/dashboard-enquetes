@@ -4,14 +4,14 @@ function buildTable(columns, dataRows, headers) {
   thead.innerHTML = '';
   tbody.innerHTML = '';
 
-  const tableCols = columns.filter(c => ['name','client','coach','rating','yesno'].includes(c.type));
+  const tableCols = columns.filter(c => ['week','name','client','coach','rating','yesno'].includes(c.type));
   tableState = { cols: tableCols, dataRows: dataRows, sortCol: -1, sortDir: 'asc' };
 
   const tr = document.createElement('tr');
   tableCols.forEach((c, colIdx) => {
     const th = document.createElement('th');
     th.className = 'sortable';
-    const displayText = c.type === 'name' ? 'Employee' : c.type === 'client' ? 'Client' : c.type === 'coach' ? 'Job Coach' : c.header.length > 25 ? c.header.slice(0,22) + '…' : c.header;
+    const displayText = c.type === 'week' ? 'Week' : c.type === 'name' ? 'Employee' : c.type === 'client' ? 'Client' : c.type === 'coach' ? 'Job Coach' : c.header.length > 25 ? c.header.slice(0,22) + '…' : c.header;
     th.innerHTML = `${esc(displayText)} <span class="sort-indicator"></span>`;
     th.title = c.header;
     th.onclick = () => sortTable(colIdx);
@@ -77,7 +77,9 @@ function renderTableBody() {
       const val = row[col.index];
       const strVal = val instanceof Date ? val.toLocaleDateString() : String(val ?? '');
 
-      if (col.type === 'name') {
+      if (col.type === 'week') {
+        td.innerHTML = `<span class="week-cell">${esc(strVal)}</span>`;
+      } else if (col.type === 'name') {
         td.className = 'td-name';
         td.textContent = strVal;
       } else if (col.type === 'rating') {
