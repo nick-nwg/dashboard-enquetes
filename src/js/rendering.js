@@ -14,8 +14,8 @@ function renderDashboard(sheetName, columns, dataRows, headers) {
   const titlePrefix = overviewMode ? 'Overzicht — ' : currentWeek ? 'Week ' + currentWeek + ' — ' : '';
   document.getElementById('dashTitle').textContent = titlePrefix + sheetName;
   const weekCount = Object.keys(allWorkbooks).length;
-  const subtitlePrefix = overviewMode ? weekCount + ' weken · ' : (currentFileName ? currentFileName + ' · ' : '');
-  document.getElementById('dashSubtitle').textContent = subtitlePrefix + dataRows.length + ' respondenten';
+  const subtitle = overviewMode ? weekCount + ' weken' : (currentFileName || '');
+  document.getElementById('dashSubtitle').textContent = subtitle;
   document.getElementById('respondentCount').textContent = dataRows.length;
 
   const ratingCols = columns.filter(c => c.type === 'rating');
